@@ -17,7 +17,7 @@ class Categories(models.Model):
                             db_index=True,
                             unique=True,
                             verbose_name='Нименование категории')
-    expense = models.BooleanField(default=None, null=True, blank=True, db_index=True, verbose_name='Расход?')
+    expense = models.BooleanField(default=None, null=True, blank=True, db_index=True, verbose_name='Расход?',)
     income = models.BooleanField(default=None, null=True, blank=True, db_index=True, verbose_name='Доход?')
     created_at = models.DateTimeField(auto_now_add=True, db_index=True, verbose_name='Создано')
 
@@ -45,9 +45,9 @@ class Operations(models.Model):
     # Проверка на только положительные значания
     created_at = models.DateTimeField(auto_now_add=True, db_index=True, verbose_name='Создано')
     user = models.ForeignKey(AdvUser, on_delete=models.CASCADE,
-                             verbose_name='Пользователь')
+                             verbose_name='Пользователь', related_name='operations')
     category = models.ForeignKey(Categories, on_delete=models.PROTECT,
-                                 verbose_name='Категория')
+                                 verbose_name='Категория', related_name='operations')
 
     def __str__(self):
         return f"Operation - {self.title} {self.amount}"
