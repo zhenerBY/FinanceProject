@@ -32,8 +32,8 @@ class Categories(models.Model):
 
     class Meta:
         ordering = ('name',)
-        verbose_name = 'Категория расходов'
-        verbose_name_plural = 'Категории расходов'
+        verbose_name = 'Категория'
+        verbose_name_plural = 'Категории'
 
 
 class Operations(models.Model):
