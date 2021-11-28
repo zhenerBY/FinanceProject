@@ -1,13 +1,20 @@
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
+from rest_framework_simplejwt.tokens import RefreshToken
+
 from main.models import Categories, AdvUser, Operations
-from main.serializers import UsersSerializer
+from main.serializers import UsersSerializer, OperationsSerializer, CategoriesSerializer
+
 
 class UsersViewSet(viewsets.ModelViewSet):
     queryset = AdvUser.objects.all()
     serializer_class = UsersSerializer
+    # permission_classes = [IsAuthenticatedOrReadOnly]
+    # permission_classes = [IsAuthenticated]
+
 
     @action(methods=['POST'], detail=False, url_path="registers")
     def register(self, request):
@@ -23,11 +30,26 @@ class UsersViewSet(viewsets.ModelViewSet):
         if last_name is not None:
             u.last_name = last_name
         u.save()
+        refresh = RefreshToken.for_user(u)
         res_data = {
             "user": UsersSerializer(u).data,
-            # "token": {
-            #     'refresh': str(refresh),
-            #     'access': str(refresh.access_token),
-            # }
+            "token": {
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+            }
         }
         return Response(res_data, status=status.HTTP_201_CREATED)
+
+
+class OperationsViewSet(viewsets.ModelViewSet):
+    queryset = Operations.objects.all()
+    serializer_class = OperationsSerializer
+    # permission_classes = [IsAuthenticatedOrReadOnly]
+    # permission_classes = [IsAuthenticated]
+
+
+class CategoriesViewSet(viewsets.ModelViewSet):
+    queryset = Categories.objects.all()
+    serializer_class = CategoriesSerializer
+    # permission_classes = [IsAuthenticatedOrReadOnly]
+    # permission_classes = [IsAuthenticated]
