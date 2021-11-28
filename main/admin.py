@@ -4,7 +4,7 @@ from .models import AdvUser, Categories, Operations
 
 
 class CategoriesAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'expense', 'income', 'created_at')
+    list_display = ('id', 'name', 'cat_type', 'created_at')
     list_display_links = ('name',)
     search_fields = ('name',)
     ordering = ('name',)

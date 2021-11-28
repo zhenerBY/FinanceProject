@@ -1,6 +1,7 @@
 from django.core import validators
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.utils.translation import gettext_lazy as _
 
 
 class AdvUser(AbstractUser):
@@ -13,22 +14,19 @@ class AdvUser(AbstractUser):
 
 
 class Categories(models.Model):
+    class CatType(models.TextChoices):
+        EXPENSE = 'EXP', _('Expense')
+        INCOME = 'INC', _('Income')
+
     name = models.CharField(max_length=50,
                             db_index=True,
                             unique=True,
                             verbose_name='Нименование категории')
-    expense = models.BooleanField(default=None, null=True, blank=True, db_index=True, verbose_name='Расход?',)
-    income = models.BooleanField(default=None, null=True, blank=True, db_index=True, verbose_name='Доход?')
+    cat_type = models.CharField(max_length=3, choices=CatType.choices, default=CatType.EXPENSE)
     created_at = models.DateTimeField(auto_now_add=True, db_index=True, verbose_name='Создано')
 
     def __str__(self):
-        if self.expense is True:
-            transaction = 'Расходы'
-        elif self.income is True:
-            transaction = 'Доходы'
-        else:
-            transaction = 'Необъявленная категория'
-        return f'Category - {self.name} : {transaction}'
+        return f'Category - {self.name} : {self.cat_type}'
 
     class Meta:
         ordering = ('name',)
