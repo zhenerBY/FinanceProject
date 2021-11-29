@@ -15,6 +15,16 @@ class UsersViewSet(viewsets.ModelViewSet):
     # permission_classes = [IsAuthenticatedOrReadOnly]
     # permission_classes = [IsAuthenticated]
 
+    def get_permissions(self):
+        if self.action == 'list':
+            permission_classes = [IsAuthenticatedOrReadOnly]
+        elif self.action == 'create':
+            permission_classes = [IsAuthenticatedOrReadOnly]
+        elif self.action == 'register':
+            permission_classes = [AllowAny]
+        else:
+            permission_classes = [IsAuthenticatedOrReadOnly]
+        return [permission() for permission in permission_classes]
 
     @action(methods=['POST'], detail=False, url_path="registers")
     def register(self, request):
@@ -44,12 +54,12 @@ class UsersViewSet(viewsets.ModelViewSet):
 class OperationsViewSet(viewsets.ModelViewSet):
     queryset = Operations.objects.all()
     serializer_class = OperationsSerializer
-    # permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticatedOrReadOnly]
     # permission_classes = [IsAuthenticated]
 
 
 class CategoriesViewSet(viewsets.ModelViewSet):
     queryset = Categories.objects.all()
     serializer_class = CategoriesSerializer
-    # permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticatedOrReadOnly]
     # permission_classes = [IsAuthenticated]
