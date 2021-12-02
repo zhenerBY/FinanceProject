@@ -5,7 +5,7 @@ from rest_framework.response import Response
 
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from main.models import Categories, AdvUser, Operations
+from main.models import Category, AdvUser, Operation
 from main.serializers import UsersSerializer, OperationsSerializer, CategoriesSerializer
 
 
@@ -26,7 +26,7 @@ class UsersViewSet(viewsets.ModelViewSet):
             permission_classes = [IsAuthenticatedOrReadOnly]
         return [permission() for permission in permission_classes]
 
-    @action(methods=['POST'], detail=False, url_path="registers")
+    @action(methods=['POST'], detail=False, url_path="register")
     def register(self, request):
         username = request.data.get('username')
         password = request.data.get('password')
@@ -52,14 +52,14 @@ class UsersViewSet(viewsets.ModelViewSet):
 
 
 class OperationsViewSet(viewsets.ModelViewSet):
-    queryset = Operations.objects.all()
+    queryset = Operation.objects.all()
     serializer_class = OperationsSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
     # permission_classes = [IsAuthenticated]
 
 
 class CategoriesViewSet(viewsets.ModelViewSet):
-    queryset = Categories.objects.all()
+    queryset = Category.objects.all()
     serializer_class = CategoriesSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
     # permission_classes = [IsAuthenticated]

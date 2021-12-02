@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from main.models import AdvUser, Categories, Operations
+from main.models import AdvUser, Category, Operation
 
 
 class UsersSerializer(serializers.ModelSerializer):
@@ -24,7 +24,7 @@ class CategoriesSerializer(serializers.ModelSerializer):
     # operations = OperationsSerializer(many=True)
 
     class Meta:
-        model = Categories
+        model = Category
         fields = [
             'id',
             'name',
@@ -37,7 +37,7 @@ class OperationsSerializer(serializers.ModelSerializer):
     category = CategoriesSerializer()
 
     class Meta:
-        model = Operations
+        model = Operation
         fields = [
             'id',
             'title',

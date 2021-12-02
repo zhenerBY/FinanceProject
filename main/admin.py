@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import AdvUser, Categories, Operations
+from .models import AdvUser, Category, Operation
 
 
 class CategoriesAdmin(admin.ModelAdmin):
@@ -25,5 +25,5 @@ class OperationsAdmin(admin.ModelAdmin):
 
 
 admin.site.register(AdvUser, AdvUserAdmin)
-admin.site.register(Categories, CategoriesAdmin)
-admin.site.register(Operations, OperationsAdmin)
+admin.site.register(Category, CategoriesAdmin)
+admin.site.register(Operation, OperationsAdmin)
