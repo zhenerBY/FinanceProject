@@ -58,6 +58,12 @@ class OperationsViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticatedOrReadOnly]
     # permission_classes = [IsAuthenticated]
 
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        if not self.request.user.is_superuser:
+            queryset = queryset.filter(user_id=self.request.user.id)
+        return queryset
+
 
 class CategoriesViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()

@@ -33,8 +33,8 @@ class CategoriesSerializer(serializers.ModelSerializer):
 
 
 class OperationsSerializer(serializers.ModelSerializer):
-    user = UsersSerializer()
-    category = CategoriesSerializer()
+    # user = UsersSerializer()
+    # category = CategoriesSerializer()
 
     class Meta:
         model = Operation
