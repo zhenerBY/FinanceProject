@@ -10,6 +10,7 @@ from main.serializers import UsersSerializer, OperationsSerializer, CategoriesSe
 
 
 class UsersViewSet(viewsets.ModelViewSet):
+
     queryset = AdvUser.objects.all()
     serializer_class = UsersSerializer
     # permission_classes = [IsAuthenticatedOrReadOnly]
