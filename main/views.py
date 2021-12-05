@@ -10,9 +10,9 @@ from main.serializers import UsersSerializer, OperationsSerializer, CategoriesSe
 
 
 class UsersViewSet(viewsets.ModelViewSet):
-
     queryset = AdvUser.objects.all()
     serializer_class = UsersSerializer
+
     # permission_classes = [IsAuthenticatedOrReadOnly]
     # permission_classes = [IsAuthenticated]
 
@@ -26,6 +26,12 @@ class UsersViewSet(viewsets.ModelViewSet):
         else:
             permission_classes = [IsAuthenticatedOrReadOnly]
         return [permission() for permission in permission_classes]
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        if not self.request.user.is_superuser:
+            queryset = queryset.filter(id=self.request.user.id)
+        return queryset
 
     @action(methods=['POST'], detail=False, url_path="register")
     def register(self, request):
@@ -56,13 +62,25 @@ class OperationsViewSet(viewsets.ModelViewSet):
     queryset = Operation.objects.all()
     serializer_class = OperationsSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
+
     # permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
+        # import pdb
+        # pdb.set_trace()
         queryset = super().get_queryset()
         if not self.request.user.is_superuser:
             queryset = queryset.filter(user_id=self.request.user.id)
         return queryset
+
+    def perform_create(self, serializer):
+        if self.request.user.is_superuser:
+            serializer.save()
+        # пользователь может создать операции только под своим юзером.
+        elif self.request.user.is_authenticated:
+            return serializer.save(user=self.request.user)
+        else:
+            serializer.save()
 
 
 class CategoriesViewSet(viewsets.ModelViewSet):
