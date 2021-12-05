@@ -1,10 +1,10 @@
 from django.contrib import admin
 
-from .models import AdvUser, Categories, Operations
+from .models import AdvUser, Category, Operation
 
 
 class CategoriesAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'expense', 'income', 'created_at')
+    list_display = ('id', 'name', 'cat_type', 'created_at')
     list_display_links = ('name',)
     search_fields = ('name',)
     ordering = ('name',)
@@ -25,5 +25,5 @@ class OperationsAdmin(admin.ModelAdmin):
 
 
 admin.site.register(AdvUser, AdvUserAdmin)
-admin.site.register(Categories, CategoriesAdmin)
-admin.site.register(Operations, OperationsAdmin)
+admin.site.register(Category, CategoriesAdmin)
+admin.site.register(Operation, OperationsAdmin)
