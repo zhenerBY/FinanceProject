@@ -40,12 +40,14 @@ class UsersViewSet(viewsets.ModelViewSet):
         first_name = request.data.get('first_name')
         last_name = request.data.get('last_name')
         email = request.data.get('email')
-        u = AdvUser(username=username, email=email)
+        u = AdvUser(username=username)
         u.set_password(password)
         if first_name is not None:
             u.first_name = first_name
         if last_name is not None:
             u.last_name = last_name
+        if email is not None:
+            u.email = email
         u.save()
         refresh = RefreshToken.for_user(u)
         res_data = {
