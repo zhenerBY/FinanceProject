@@ -13,6 +13,24 @@ class AdvUser(AbstractUser):
         pass
 
 
+class ApiUser(models.Model):
+    username = models.CharField(max_length=255,
+                            db_index=True,
+                            unique=True,
+                            verbose_name=_('User name'))
+    user_id = models.PositiveBigIntegerField()
+    is_active = models.BooleanField(default=True,
+                                    verbose_name=_('Is active?'))
+
+    def __str__(self):
+        return f'ApiUser - {self.user_id}'
+
+    class Meta:
+        ordering = ('user_id',)
+        verbose_name = _('Api User')
+        verbose_name_plural = _('Api Users')
+
+
 class Category(models.Model):
     class CatType(models.TextChoices):
         EXPENSE = 'EXP', _('Expense')
@@ -42,7 +60,7 @@ class Operation(models.Model):
                                                                         message=_('Value less than zero'))])
     # Checking for only positive values
     created_at = models.DateTimeField(auto_now_add=True, db_index=True, verbose_name=_('Created'))
-    user = models.ForeignKey(AdvUser, on_delete=models.CASCADE,
+    user = models.ForeignKey(ApiUser, on_delete=models.CASCADE,
                              verbose_name=_('User'), related_name='operations')
     category = models.ForeignKey(Category, on_delete=models.PROTECT,
                                  verbose_name=_('Category'), related_name='operations')

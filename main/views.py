@@ -5,8 +5,8 @@ from rest_framework.response import Response
 
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from main.models import Category, AdvUser, Operation
-from main.serializers import UsersSerializer, OperationsSerializer, CategoriesSerializer
+from main.models import Category, AdvUser, Operation, ApiUser
+from main.serializers import UsersSerializer, OperationsSerializer, CategoriesSerializer, ApiUsersSerializer
 
 
 class UsersViewSet(viewsets.ModelViewSet):
@@ -63,13 +63,12 @@ class UsersViewSet(viewsets.ModelViewSet):
 class OperationsViewSet(viewsets.ModelViewSet):
     queryset = Operation.objects.all()
     serializer_class = OperationsSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
-
+    # permission_classes = [IsAuthenticatedOrReadOnly]
     # permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
+
 
     def get_queryset(self):
-        # import pdb
-        # pdb.set_trace()
         queryset = super().get_queryset()
         if not self.request.user.is_superuser:
             queryset = queryset.filter(user_id=self.request.user.id)
@@ -88,5 +87,13 @@ class OperationsViewSet(viewsets.ModelViewSet):
 class CategoriesViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategoriesSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    # permission_classes = [IsAuthenticatedOrReadOnly]
     # permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
+
+
+class ApiUsersViewSet(viewsets.ModelViewSet):
+    queryset = ApiUser.objects.all()
+    serializer_class = ApiUsersSerializer
+    # permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [AllowAny]

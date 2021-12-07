@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from main.models import AdvUser, Category, Operation
+from main.models import AdvUser, Category, Operation, ApiUser
 
 
 class UsersSerializer(serializers.ModelSerializer):
@@ -16,6 +16,17 @@ class UsersSerializer(serializers.ModelSerializer):
             'last_name',
             'email',
             # 'operations',
+        ]
+
+
+class ApiUsersSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ApiUser
+        fields = [
+            'id',
+            'user_id',
+            'username',
+            'is_active',
         ]
 
 
