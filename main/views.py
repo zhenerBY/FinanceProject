@@ -1,6 +1,6 @@
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny, IsAuthenticated
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny, IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -97,3 +97,14 @@ class ApiUsersViewSet(viewsets.ModelViewSet):
     serializer_class = ApiUsersSerializer
     # permission_classes = [IsAuthenticatedOrReadOnly]
     permission_classes = [AllowAny]
+
+    def get_queryset(self):
+        # import pdb
+        # pdb.set_trace()
+        queryset = super().get_queryset()
+        try:
+            queryset = queryset.filter(user_id=self.request.data['api_user_id'])
+        except KeyError:
+            queryset = queryset
+        return queryset
+
