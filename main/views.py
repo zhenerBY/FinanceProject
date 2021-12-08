@@ -1,3 +1,4 @@
+from django.http import QueryDict
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny, IsAuthenticated, IsAdminUser
@@ -67,21 +68,71 @@ class OperationsViewSet(viewsets.ModelViewSet):
     # permission_classes = [IsAuthenticated]
     permission_classes = [AllowAny]
 
+    # Времмено оставил, как функционал для авторизованных юзеров
+    # def get_queryset(self):
+    #     queryset = super().get_queryset()
+    #     if not self.request.user.is_superuser:
+    #         queryset = queryset.filter(user_id=self.request.user.id)
+    #     return queryset
+    #
+    # def perform_create(self, serializer):
+    #     if self.request.user.is_superuser:
+    #         serializer.save()
+    #     # пользователь может создать операции только под своим юзером.
+    #     elif self.request.user.is_authenticated:
+    #         return serializer.save(user=self.request.user)
+    #     else:
+    #         serializer.save()
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        if not self.request.user.is_superuser:
-            queryset = queryset.filter(user_id=self.request.user.id)
+        # import pdb
+        # pdb.set_trace()
+        if self.request.method in ('GET', 'DELETE', 'PUT', 'PATH'):
+            try:
+                queryset = queryset.filter(user__chat_id=self.request.data['chat_id'])
+            except KeyError:
+                queryset = queryset
         return queryset
 
-    def perform_create(self, serializer):
-        if self.request.user.is_superuser:
-            serializer.save()
-        # пользователь может создать операции только под своим юзером.
-        elif self.request.user.is_authenticated:
-            return serializer.save(user=self.request.user)
-        else:
-            serializer.save()
+    # переопределяем, чтобы создавалась запись по chat_id, а не ApiUser.id.
+    # При этом сохранена возможность использовать ApiUser.id, если не указан chat_id
+    def create(self, request, *args, **kwargs):
+        print(request.data)
+        print(type(request.data))
+        # import pdb
+        # pdb.set_trace()
+        if isinstance(request.data, QueryDict):
+            try:
+                chat_id=self.request.data['chat_id']
+            except KeyError:
+                pass
+        try:
+            chat_id=self.request.data['chat_id']
+        except KeyError:
+            pass
+        # try:
+        #     print('change', request.data)
+        #     request.data['user'] = ApiUser.objects.get(chat_id=self.request.data['chat_id']).pk
+        # except KeyError:
+        #     pass
+        print(request.data)
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+
+# после переопределения create - не нужно. Пока не удаляю.
+# def perform_create(self, serializer):
+#     # пользователь может создать операции только под своим юзером.
+#     # Только для создания(POST). ПРи необходимости можно и другие методы сделать.
+#     try:
+#         print('userPK', type(ApiUser.objects.get(chat_id=self.request.data['chat_id']).pk))
+#         serializer.save(user=ApiUser.objects.get(chat_id=self.request.data['chat_id']))
+#     except KeyError:
+#         serializer.save()
 
 
 class CategoriesViewSet(viewsets.ModelViewSet):
@@ -99,12 +150,12 @@ class ApiUsersViewSet(viewsets.ModelViewSet):
     permission_classes = [AllowAny]
 
     def get_queryset(self):
+        queryset = super().get_queryset()
         # import pdb
         # pdb.set_trace()
-        queryset = super().get_queryset()
-        try:
-            queryset = queryset.filter(user_id=self.request.data['api_user_id'])
-        except KeyError:
-            queryset = queryset
+        if self.request.method in ('GET', 'DELETE', 'PUT', 'PATH'):
+            try:
+                queryset = queryset.filter(chat_id=self.request.data['chat_id'])
+            except KeyError:
+                queryset = queryset
         return queryset
-

@@ -11,10 +11,10 @@ class AdvUserAdmin(admin.ModelAdmin):
 
 
 class ApiUserAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user_id', 'username', 'is_active',)
-    list_display_links = ('user_id',)
-    search_fields = ('user_id',)
-    ordering = ('user_id',)
+    list_display = ('id', 'chat_id', 'first_name', 'is_active',)
+    list_display_links = ('chat_id',)
+    search_fields = ('chat_id',)
+    ordering = ('chat_id',)
 
 
 class CategoriesAdmin(admin.ModelAdmin):
