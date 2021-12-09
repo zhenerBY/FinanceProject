@@ -24,8 +24,8 @@ class ApiUsersSerializer(serializers.ModelSerializer):
         model = ApiUser
         fields = [
             'id',
-            'user_id',
-            'username',
+            'chat_id',
+            'first_name',
             'is_active',
         ]
 

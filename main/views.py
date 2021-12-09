@@ -1,6 +1,7 @@
+from django.http import QueryDict
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny, IsAuthenticated
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny, IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -12,9 +13,7 @@ from main.serializers import UsersSerializer, OperationsSerializer, CategoriesSe
 class UsersViewSet(viewsets.ModelViewSet):
     queryset = AdvUser.objects.all()
     serializer_class = UsersSerializer
-
-    # permission_classes = [IsAuthenticatedOrReadOnly]
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAdminUser]
 
     def get_permissions(self):
         if self.action == 'list':
@@ -63,37 +62,99 @@ class UsersViewSet(viewsets.ModelViewSet):
 class OperationsViewSet(viewsets.ModelViewSet):
     queryset = Operation.objects.all()
     serializer_class = OperationsSerializer
-    # permission_classes = [IsAuthenticatedOrReadOnly]
-    # permission_classes = [IsAuthenticated]
-    permission_classes = [AllowAny]
+    permission_classes = [IsAdminUser]
 
+    # Времмено оставил, как функционал для авторизованных юзеров
+    # def get_queryset(self):
+    #     queryset = super().get_queryset()
+    #     if not self.request.user.is_superuser:
+    #         queryset = queryset.filter(user_id=self.request.user.id)
+    #     return queryset
+    #
+    # def perform_create(self, serializer):
+    #     if self.request.user.is_superuser:
+    #         serializer.save()
+    #     # пользователь может создать операции только под своим юзером.
+    #     elif self.request.user.is_authenticated:
+    #         return serializer.save(user=self.request.user)
+    #     else:
+    #         serializer.save()
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        if not self.request.user.is_superuser:
-            queryset = queryset.filter(user_id=self.request.user.id)
+        if self.request.method in ('GET', 'DELETE', 'PUT', 'PATH'):
+            try:
+                queryset = queryset.filter(user__chat_id=self.request.data['chat_id'])
+            except KeyError:
+                queryset = queryset
         return queryset
 
-    def perform_create(self, serializer):
-        if self.request.user.is_superuser:
-            serializer.save()
-        # пользователь может создать операции только под своим юзером.
-        elif self.request.user.is_authenticated:
-            return serializer.save(user=self.request.user)
-        else:
-            serializer.save()
+
+# отлавливаем и переопледеляем request.data, если есть в запросе 'chat_id'
+    def get_serializer(self, *args, **kwargs):
+        if self.request.data.get("chat_id") is not None:
+            user = ApiUser.objects.get(chat_id=self.request.data['chat_id']).pk
+            self.request.data['user'] = user
+        return super().get_serializer(*args, **kwargs)
+
+
+# уже не надо
+    # переопределяем, чтобы создавалась запись по chat_id, а не ApiUser.id.
+    # При этом сохранена возможность использовать ApiUser.id, если не указан chat_id
+    # def create(self, request, *args, **kwargs):
+    #     print(request.data)
+    #     print(type(request.data))
+    #     # import pdb
+    #     # pdb.set_trace()
+    #     # if isinstance(request.data, QueryDict):
+    #     #     try:
+    #     #         chat_id=self.request.data['chat_id']
+    #     #     except KeyError:
+    #     #         pass
+    #     # try:
+    #     #     chat_id=self.request.data['chat_id']
+    #     # except KeyError:
+    #     #     pass
+    #     try:
+    #         print('change', request.data)
+    #         request.data['user'] = ApiUser.objects.get(chat_id=self.request.data['chat_id']).pk
+    #     except KeyError:
+    #         pass
+    #     print(request.data)
+    #     serializer = self.get_serializer(data=request.data)
+    #     serializer.is_valid(raise_exception=True)
+    #     self.perform_create(serializer)
+    #     headers = self.get_success_headers(serializer.data)
+    #     return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+
+# после переопределения create - не нужно. Пока не удаляю.
+# def perform_create(self, serializer):
+#     # пользователь может создать операции только под своим юзером.
+#     # Только для создания(POST). ПРи необходимости можно и другие методы сделать.
+#     try:
+#         print('userPK', type(ApiUser.objects.get(chat_id=self.request.data['chat_id']).pk))
+#         serializer.save(user=ApiUser.objects.get(chat_id=self.request.data['chat_id']))
+#     except KeyError:
+#         serializer.save()
 
 
 class CategoriesViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategoriesSerializer
-    # permission_classes = [IsAuthenticatedOrReadOnly]
-    # permission_classes = [IsAuthenticated]
-    permission_classes = [AllowAny]
+    permission_classes = [IsAdminUser]
 
 
 class ApiUsersViewSet(viewsets.ModelViewSet):
     queryset = ApiUser.objects.all()
     serializer_class = ApiUsersSerializer
-    # permission_classes = [IsAuthenticatedOrReadOnly]
-    permission_classes = [AllowAny]
+    permission_classes = [IsAdminUser]
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        if self.request.method in ('GET', 'DELETE', 'PUT', 'PATH'):
+            try:
+                queryset = queryset.filter(chat_id=self.request.data['chat_id'])
+            except KeyError:
+                queryset = queryset
+        return queryset

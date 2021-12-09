@@ -14,21 +14,22 @@ class AdvUser(AbstractUser):
 
 
 class ApiUser(models.Model):
-    username = models.CharField(max_length=255,
+    first_name = models.CharField(max_length=255,
                             db_index=True,
                             unique=True,
                             verbose_name=_('User name'))
-    user_id = models.PositiveBigIntegerField()
+    chat_id = models.PositiveBigIntegerField()
     is_active = models.BooleanField(default=True,
                                     verbose_name=_('Is active?'))
 
     def __str__(self):
-        return f'ApiUser - {self.user_id}'
+        return f'ApiUser - {self.chat_id}'
 
     class Meta:
-        ordering = ('user_id',)
-        verbose_name = _('Api User')
-        verbose_name_plural = _('Api Users')
+        ordering = ('chat_id',)
+        verbose_name = _('API User')
+        verbose_name_plural = _('API Users')
+
 
 
 class Category(models.Model):
