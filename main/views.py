@@ -102,20 +102,20 @@ class OperationsViewSet(viewsets.ModelViewSet):
         print(type(request.data))
         # import pdb
         # pdb.set_trace()
-        if isinstance(request.data, QueryDict):
-            try:
-                chat_id=self.request.data['chat_id']
-            except KeyError:
-                pass
-        try:
-            chat_id=self.request.data['chat_id']
-        except KeyError:
-            pass
+        # if isinstance(request.data, QueryDict):
+        #     try:
+        #         chat_id=self.request.data['chat_id']
+        #     except KeyError:
+        #         pass
         # try:
-        #     print('change', request.data)
-        #     request.data['user'] = ApiUser.objects.get(chat_id=self.request.data['chat_id']).pk
+        #     chat_id=self.request.data['chat_id']
         # except KeyError:
         #     pass
+        try:
+            print('change', request.data)
+            request.data['user'] = ApiUser.objects.get(chat_id=self.request.data['chat_id']).pk
+        except KeyError:
+            pass
         print(request.data)
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)

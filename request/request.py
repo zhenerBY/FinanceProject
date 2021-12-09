@@ -15,7 +15,7 @@ def get_api_users_list(chat_id: int = None) -> dict:
         }
     else:
         data = {}
-    users_data = requests.get(HOST_API + 'apiusers/', data=data)
+    users_data = requests.get(HOST_API + 'apiusers/', json=data)
     json_users_data = users_data.json()
     return json_users_data
 
@@ -28,7 +28,7 @@ def get_operations(chat_id: int = None) -> dict:
         }
     else:
         data = {}
-    users_data = requests.get(HOST_API + 'operations/', data=data)
+    users_data = requests.get(HOST_API + 'operations/', json=data)
     json_users_data = users_data.json()
     return json_users_data
 
@@ -51,11 +51,7 @@ def add_operations(title: str, description: str, amount: float, user: int, categ
             "user": user,
             "category": category,
         }
-    # print(data)
-    # data = json.dump(data)
-    print(data)
-    response = requests.post(HOST_API + 'operations/', data=data)
-    print(response)
+    response = requests.post(HOST_API + 'operations/', json=data)
     json_responce = response.json()
     return json_responce
 
@@ -68,7 +64,7 @@ def get_token(chat_id: int) -> str:
         'password': chat_id,
     }
     if is_user_exist(chat_id):
-        return requests.post(HOST_API + 'token/', data=data).json()['access']
+        return requests.post(HOST_API + 'token/', json=data).json()['access']
     return 'User not registered'
 
 
@@ -87,7 +83,7 @@ def user_registration(chat_id: int) -> None:
             'username': chat_id,
             'password': chat_id,
         }
-        requests.post(HOST_API + 'users/register/', data=data)
+        requests.post(HOST_API + 'users/register/', json=data)
 
 
 def is_user_exist(chat_id: int) -> bool:
@@ -95,6 +91,6 @@ def is_user_exist(chat_id: int) -> bool:
         'username': chat_id,
         'password': chat_id,
     }
-    if requests.post(HOST_API + 'token/', data=data).status_code == 200:
+    if requests.post(HOST_API + 'token/', json=data).status_code == 200:
         return True
     return False
