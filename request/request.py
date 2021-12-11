@@ -98,6 +98,19 @@ def del_categories(id: int) -> int:
     # json_users_data = users_data.json()
     return users_data.status_code
 
+
+def get_balance(chat_id:int) -> dict:
+    headers = {
+        'Authorization': 'Token ' + TOKEN,
+    }
+    data = {
+        'chat_id': chat_id,
+    }
+    users_data = requests.get(HOST_API + 'operations/balance/', headers=headers, json=data)
+    json_users_data = users_data.json()
+    return json_users_data
+
+
 # use only if token doesn't exist
 # !!! NOT 4 BOT !!!
 def create_jrf_token(username: str) -> str:
@@ -106,6 +119,7 @@ def create_jrf_token(username: str) -> str:
     user = AdvUser.objects.get(username=username)
     token = Token.objects.create(user=user)
     return token.key
+
 
 
 # get JWT token. Работает, но пока не используется.
