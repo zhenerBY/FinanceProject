@@ -98,25 +98,39 @@ class OperationsViewSet(viewsets.ModelViewSet):
         return super().get_serializer(*args, **kwargs)
 
     # shows the user's income and expenses (2 numbers)
-    @action(methods=['GET'], detail=False, url_path="balance")
+    @action(methods=['GET', 'POST'], detail=False, url_path="balance")
     def balance(self, request):
         chat_id = request.data.get('chat_id')
         u = ApiUser.objects.get(chat_id=chat_id)
-        inc = 0.0
-        exp = 0.0
-        q_inc = Q(user_id=u.pk) & Q(category__cat_type='INC')
-        q_exp = Q(user_id=u.pk) & Q(category__cat_type='EXP')
-        for operation in Operation.objects.filter(q_inc):
-            inc += operation.amount
-        for operation in Operation.objects.filter(q_exp):
-            exp += operation.amount
-        res_data = {
-            "user": ApiUsersSerializer(u).data,
-            "balance": {
-                'inc': inc,
-                'exp': exp,
+        cat_type = request.data.get('cat_type')
+        if request.method == 'GET':
+            inc = 0.0
+            exp = 0.0
+            q_inc = Q(user_id=u.pk) & Q(category__cat_type='INC')
+            q_exp = Q(user_id=u.pk) & Q(category__cat_type='EXP')
+            for operation in Operation.objects.filter(q_inc):
+                inc += operation.amount
+            for operation in Operation.objects.filter(q_exp):
+                exp += operation.amount
+            res_data = {
+                "user": ApiUsersSerializer(u).data,
+                "balance": {
+                    'inc': inc,
+                    'exp': exp,
+                }
             }
-        }
+        elif request.method == 'POST':
+            q = Q(user_id=u.pk) & Q(category__cat_type=cat_type)
+            categories = {}
+            for operation in Operation.objects.filter(q):
+                if operation.category.name in categories.keys():
+                    categories[operation.category.name] += operation.amount
+                else:
+                    categories[operation.category.name] = operation.amount
+            res_data = {
+                "user": ApiUsersSerializer(u).data,
+                "categories": categories
+            }
         return Response(res_data, status=status.HTTP_200_OK)
 
 

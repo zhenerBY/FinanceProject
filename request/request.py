@@ -111,6 +111,19 @@ def get_balance(chat_id: int) -> dict:
     return json_users_data
 
 
+def get_categories_balance(chat_id: int, cat_type: str) -> dict:
+    headers = {
+        'Authorization': 'Token ' + TOKEN,
+    }
+    data = {
+        'chat_id': chat_id,
+        'cat_type': cat_type
+    }
+    users_data = requests.post(HOST_API + 'operations/balance/', headers=headers, json=data)
+    json_users_data = users_data.json()
+    return json_users_data
+
+
 # use only if token doesn't exist
 # !!! NOT 4 BOT !!!
 def create_jrf_token(username: str) -> str:
