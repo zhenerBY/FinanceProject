@@ -99,7 +99,7 @@ def del_categories(id: int) -> int:
     return users_data.status_code
 
 
-def get_balance(chat_id:int) -> dict:
+def get_balance(chat_id: int) -> dict:
     headers = {
         'Authorization': 'Token ' + TOKEN,
     }
@@ -119,7 +119,6 @@ def create_jrf_token(username: str) -> str:
     user = AdvUser.objects.get(username=username)
     token = Token.objects.create(user=user)
     return token.key
-
 
 
 # get JWT token. Работает, но пока не используется.
