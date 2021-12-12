@@ -65,6 +65,8 @@ class Operation(models.Model):
                              verbose_name=_('User'), related_name='operations')
     category = models.ForeignKey(Category, on_delete=models.PROTECT,
                                  verbose_name=_('Category'), related_name='operations')
+    is_active = models.BooleanField(default=True,
+                                    verbose_name=_('Is active?'))
 
     def __str__(self):
         return f"Operation - {self.title} {self.amount}"
