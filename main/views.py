@@ -1,3 +1,4 @@
+from django.db.models import Q
 from django.http import QueryDict
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
@@ -89,43 +90,78 @@ class OperationsViewSet(viewsets.ModelViewSet):
                 queryset = queryset
         return queryset
 
-
-# отлавливаем и переопледеляем request.data, если есть в запросе 'chat_id'
+    # отлавливаем и переопледеляем request.data, если есть в запросе 'chat_id'
     def get_serializer(self, *args, **kwargs):
         if self.request.data.get("chat_id") is not None:
             user = ApiUser.objects.get(chat_id=self.request.data['chat_id']).pk
             self.request.data['user'] = user
         return super().get_serializer(*args, **kwargs)
 
+    # shows the user's income and expenses (2 numbers)
+    @action(methods=['GET', 'POST'], detail=False, url_path="balance")
+    def balance(self, request):
+        chat_id = request.data.get('chat_id')
+        u = ApiUser.objects.get(chat_id=chat_id)
+        cat_type = request.data.get('cat_type')
+        if request.method == 'GET':
+            inc = 0.0
+            exp = 0.0
+            q_inc = Q(user_id=u.pk) & Q(category__cat_type='INC')
+            q_exp = Q(user_id=u.pk) & Q(category__cat_type='EXP')
+            for operation in Operation.objects.filter(q_inc):
+                inc += operation.amount
+            for operation in Operation.objects.filter(q_exp):
+                exp += operation.amount
+            res_data = {
+                "user": ApiUsersSerializer(u).data,
+                "balance": {
+                    'inc': inc,
+                    'exp': exp,
+                }
+            }
+        elif request.method == 'POST':
+            q = Q(user_id=u.pk) & Q(category__cat_type=cat_type)
+            categories = {}
+            for operation in Operation.objects.filter(q):
+                if operation.category.name in categories.keys():
+                    categories[operation.category.name] += operation.amount
+                else:
+                    categories[operation.category.name] = operation.amount
+            res_data = {
+                "user": ApiUsersSerializer(u).data,
+                "categories": categories
+            }
+        return Response(res_data, status=status.HTTP_200_OK)
+
 
 # уже не надо
-    # переопределяем, чтобы создавалась запись по chat_id, а не ApiUser.id.
-    # При этом сохранена возможность использовать ApiUser.id, если не указан chat_id
-    # def create(self, request, *args, **kwargs):
-    #     print(request.data)
-    #     print(type(request.data))
-    #     # import pdb
-    #     # pdb.set_trace()
-    #     # if isinstance(request.data, QueryDict):
-    #     #     try:
-    #     #         chat_id=self.request.data['chat_id']
-    #     #     except KeyError:
-    #     #         pass
-    #     # try:
-    #     #     chat_id=self.request.data['chat_id']
-    #     # except KeyError:
-    #     #     pass
-    #     try:
-    #         print('change', request.data)
-    #         request.data['user'] = ApiUser.objects.get(chat_id=self.request.data['chat_id']).pk
-    #     except KeyError:
-    #         pass
-    #     print(request.data)
-    #     serializer = self.get_serializer(data=request.data)
-    #     serializer.is_valid(raise_exception=True)
-    #     self.perform_create(serializer)
-    #     headers = self.get_success_headers(serializer.data)
-    #     return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+# переопределяем, чтобы создавалась запись по chat_id, а не ApiUser.id.
+# При этом сохранена возможность использовать ApiUser.id, если не указан chat_id
+# def create(self, request, *args, **kwargs):
+#     print(request.data)
+#     print(type(request.data))
+#     # import pdb
+#     # pdb.set_trace()
+#     # if isinstance(request.data, QueryDict):
+#     #     try:
+#     #         chat_id=self.request.data['chat_id']
+#     #     except KeyError:
+#     #         pass
+#     # try:
+#     #     chat_id=self.request.data['chat_id']
+#     # except KeyError:
+#     #     pass
+#     try:
+#         print('change', request.data)
+#         request.data['user'] = ApiUser.objects.get(chat_id=self.request.data['chat_id']).pk
+#     except KeyError:
+#         pass
+#     print(request.data)
+#     serializer = self.get_serializer(data=request.data)
+#     serializer.is_valid(raise_exception=True)
+#     self.perform_create(serializer)
+#     headers = self.get_success_headers(serializer.data)
+#     return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
 # после переопределения create - не нужно. Пока не удаляю.
