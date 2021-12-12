@@ -57,4 +57,5 @@ class OperationsSerializer(serializers.ModelSerializer):
             'user',
             'category',
             'created_at',
+            'is_active',
         ]

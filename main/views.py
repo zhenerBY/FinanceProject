@@ -83,6 +83,7 @@ class OperationsViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = super().get_queryset()
+        queryset = queryset.filter(is_active=True)
         if self.request.method in ('GET', 'DELETE', 'PUT', 'PATH'):
             try:
                 queryset = queryset.filter(user__chat_id=self.request.data['chat_id'])
@@ -106,8 +107,8 @@ class OperationsViewSet(viewsets.ModelViewSet):
         if request.method == 'GET':
             inc = 0.0
             exp = 0.0
-            q_inc = Q(user_id=u.pk) & Q(category__cat_type='INC')
-            q_exp = Q(user_id=u.pk) & Q(category__cat_type='EXP')
+            q_inc = Q(user_id=u.pk) & Q(category__cat_type='INC') & Q(is_active=True)
+            q_exp = Q(user_id=u.pk) & Q(category__cat_type='EXP') & Q(is_active=True)
             for operation in Operation.objects.filter(q_inc):
                 inc += operation.amount
             for operation in Operation.objects.filter(q_exp):
@@ -120,7 +121,7 @@ class OperationsViewSet(viewsets.ModelViewSet):
                 }
             }
         elif request.method == 'POST':
-            q = Q(user_id=u.pk) & Q(category__cat_type=cat_type)
+            q = Q(user_id=u.pk) & Q(category__cat_type=cat_type) & Q(is_active=True)
             categories = {}
             for operation in Operation.objects.filter(q):
                 if operation.category.name in categories.keys():

@@ -25,7 +25,7 @@ class CategoriesAdmin(admin.ModelAdmin):
 
 
 class OperationsAdmin(admin.ModelAdmin):
-    list_display = ('id', 'title', 'amount', 'user', 'category',)
+    list_display = ('id', 'title', 'amount', 'user', 'category', 'created_at', 'is_active')
     list_display_links = ('title', 'user',)
     search_fields = ('title', 'description',)
     ordering = ('-created_at',)
