@@ -22,6 +22,8 @@ def get_balance_pie_chart(user_id: int):
             shadow=True, startangle=90)
     ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
     plt.show()
+    # safe file
+    # plt.savefig(f'picts/{user_id}_balance.png')
 
 
 def get_categories_type_pie_chart(user_id: int, cat_type: str):
@@ -38,3 +40,5 @@ def get_categories_type_pie_chart(user_id: int, cat_type: str):
             shadow=True, startangle=90)
     ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
     plt.show()
+    # safe file
+    # plt.savefig(f'picts/{user_id}_balance.png')
