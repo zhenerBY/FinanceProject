@@ -15,10 +15,12 @@ class AdvUser(AbstractUser):
 
 class ApiUser(models.Model):
     first_name = models.CharField(max_length=255,
-                            db_index=True,
-                            unique=True,
-                            verbose_name=_('User name'))
-    chat_id = models.PositiveBigIntegerField()
+                                  db_index=True,
+                                  unique=True,
+                                  null=True,
+                                  blank=True,
+                                  verbose_name=_('User name'))
+    chat_id = models.PositiveBigIntegerField(unique=True)
     is_active = models.BooleanField(default=True,
                                     verbose_name=_('Is active?'))
 
@@ -29,7 +31,6 @@ class ApiUser(models.Model):
         ordering = ('chat_id',)
         verbose_name = _('API User')
         verbose_name_plural = _('API Users')
-
 
 
 class Category(models.Model):

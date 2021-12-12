@@ -24,6 +24,19 @@ def get_api_users_list(chat_id: int = None) -> list:
     return json_users_data
 
 
+def add_api_users(chat_id, first_name: str = None) -> dict:
+    headers = {
+        'Authorization': 'Token ' + TOKEN,
+    }
+    data = {
+        'chat_id': chat_id,
+        'first_name': first_name,
+    }
+    users_data = requests.post(HOST_API + 'apiusers/', json=data, headers=headers)
+    json_users_data = users_data.json()
+    return json_users_data
+
+
 # С аргументом - только операции пользователя, без - все
 def get_operations(chat_id: int = None) -> list:
     headers = {
@@ -63,6 +76,33 @@ def add_operations(title: str, description: str, amount: float, category: int, u
             "category": category,
         }
     response = requests.post(HOST_API + 'operations/', json=data, headers=headers)
+    json_responce = response.json()
+    return json_responce
+
+
+# use kwargs name from OperationModel
+def partial_update_operations(id: int, **kwargs) -> dict:
+    headers = {
+        'Authorization': 'Token ' + TOKEN,
+    }
+    data = {}
+    for element in kwargs:
+        data[element] = kwargs[element]
+    response = requests.patch(HOST_API + 'operations/' + str(id) + '/', json=data, headers=headers)
+    json_responce = response.json()
+    return json_responce
+
+
+# fake operation deletion
+def del_operations(id: int) -> dict:
+    headers = {
+        'Authorization': 'Token ' + TOKEN,
+    }
+    data = {
+        'id': id,
+        'is_active': False
+    }
+    response = requests.patch(HOST_API + 'operations/' + str(id) + '/', json=data, headers=headers)
     json_responce = response.json()
     return json_responce
 
