@@ -4,6 +4,7 @@ import json
 HOST_API = 'http://127.0.0.1:8000/api/'
 chat_id = 134203883
 TOKEN = '994f61ba4bd900112ae616ef66c09fe086576b2e'
+APIKEY = '2iMkpdns.E1YqQhTtB6urkiAGK5bcg95odW1pU2Ti'
 
 
 # Примеры работы для бота (без авторизации)
@@ -40,14 +41,20 @@ def add_api_users(chat_id, first_name: str = None) -> dict:
 # С аргументом - только операции пользователя, без - все
 def get_operations(chat_id: int = None) -> list:
     headers = {
-        'Authorization': 'Token ' + TOKEN,
+        # 'Authorization': 'Token ' + TOKEN,
+        # 'Authorization': 'Api-Key ' + APIKEY,
+        'Authorization': 'Api-Key 2iMkpdns.E1YqQhTtB6urkiAGK5bcg95odW1pU2Ti',
+        # 'X_API_KEY': '2iMkpdns.E1YqQhTtB6urkiAGK5bcg95odW1pU2Ti',
     }
+    import pdb
+    pdb.set_trace()
     if chat_id is not None:
         data = {
             'chat_id': chat_id,
         }
     else:
         data = {}
+    # users_data = requests.get(HOST_API + 'operations/', json=data)
     users_data = requests.get(HOST_API + 'operations/', json=data, headers=headers)
     json_users_data = users_data.json()
     return json_users_data

@@ -6,6 +6,7 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny, IsAu
 from rest_framework.response import Response
 
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_api_key.permissions import HasAPIKey
 
 from main.models import Category, AdvUser, Operation, ApiUser
 from main.serializers import UsersSerializer, OperationsSerializer, CategoriesSerializer, ApiUsersSerializer
@@ -63,7 +64,9 @@ class UsersViewSet(viewsets.ModelViewSet):
 class OperationsViewSet(viewsets.ModelViewSet):
     queryset = Operation.objects.all()
     serializer_class = OperationsSerializer
-    permission_classes = [IsAdminUser]
+    # permission_classes = [HasAPIKey]
+    # permission_classes = [HasAPIKey | IsAdminUser]
+    permission_classes = [HasAPIKey]
 
     # Времмено оставил, как функционал для авторизованных юзеров
     # def get_queryset(self):

@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'debug_toolbar',
     'drf_yasg',
     'rest_framework',
+    'rest_framework_api_key',
     'rest_framework.authtoken',
     'rest_framework_simplejwt',
 
@@ -149,6 +150,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework_simplejwt.authentication.JWTAuthentication',
         'rest_framework.authentication.TokenAuthentication',
+        'rest_framework_api_key.permissions.HasAPIKey',
     )
 }
 
