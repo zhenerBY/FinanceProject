@@ -1,4 +1,4 @@
-from django.db.models import Q
+from django.db.models import Q, Sum
 from django.http import QueryDict
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
@@ -99,39 +99,40 @@ class OperationsViewSet(viewsets.ModelViewSet):
         return super().get_serializer(*args, **kwargs)
 
     # shows the user's income and expenses (2 numbers)
-    @action(methods=['GET', 'POST'], detail=False, url_path="balance")
+    @action(methods=['GET'], detail=False, url_path="balance")
     def balance(self, request):
         chat_id = request.data.get('chat_id')
         u = ApiUser.objects.get(chat_id=chat_id)
+        q_inc = Q(user_id=u.pk) & Q(category__cat_type='INC') & Q(is_active=True)
+        q_exp = Q(user_id=u.pk) & Q(category__cat_type='EXP') & Q(is_active=True)
+        inc = Operation.objects.aggregate(inc=Sum('amount', filter=q_inc))
+        exp = Operation.objects.aggregate(exp=Sum('amount', filter=q_exp))
+        res_data = {
+            "user": ApiUsersSerializer(u).data,
+            "balance": {
+                **inc,
+                **exp,
+            }
+        }
+        return Response(res_data, status=status.HTTP_200_OK)
+
+    # show user's category balance
+    @action(methods=['GET'], detail=False, url_path="cat_balance")
+    def cat_balance(self, request):
+        chat_id = request.data.get('chat_id')
+        u = ApiUser.objects.get(chat_id=chat_id)
         cat_type = request.data.get('cat_type')
-        if request.method == 'GET':
-            inc = 0.0
-            exp = 0.0
-            q_inc = Q(user_id=u.pk) & Q(category__cat_type='INC') & Q(is_active=True)
-            q_exp = Q(user_id=u.pk) & Q(category__cat_type='EXP') & Q(is_active=True)
-            for operation in Operation.objects.filter(q_inc):
-                inc += operation.amount
-            for operation in Operation.objects.filter(q_exp):
-                exp += operation.amount
-            res_data = {
-                "user": ApiUsersSerializer(u).data,
-                "balance": {
-                    'inc': inc,
-                    'exp': exp,
-                }
-            }
-        elif request.method == 'POST':
-            q = Q(user_id=u.pk) & Q(category__cat_type=cat_type) & Q(is_active=True)
-            categories = {}
-            for operation in Operation.objects.filter(q):
-                if operation.category.name in categories.keys():
-                    categories[operation.category.name] += operation.amount
-                else:
-                    categories[operation.category.name] = operation.amount
-            res_data = {
-                "user": ApiUsersSerializer(u).data,
-                "categories": categories
-            }
+        q = Q(user_id=u.pk) & Q(category__cat_type=cat_type) & Q(is_active=True)
+        categories = {}
+        for operation in Operation.objects.filter(q):
+            if operation.category.name in categories.keys():
+                categories[operation.category.name] += operation.amount
+            else:
+                categories[operation.category.name] = operation.amount
+        res_data = {
+            "user": ApiUsersSerializer(u).data,
+            "categories": categories
+        }
         return Response(res_data, status=status.HTTP_200_OK)
 
 
