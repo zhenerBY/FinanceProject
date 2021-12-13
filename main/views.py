@@ -1,4 +1,4 @@
-from django.db.models import Q
+from django.db.models import Q, Sum
 from django.http import QueryDict
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
@@ -105,19 +105,15 @@ class OperationsViewSet(viewsets.ModelViewSet):
         u = ApiUser.objects.get(chat_id=chat_id)
         cat_type = request.data.get('cat_type')
         if request.method == 'GET':
-            inc = 0.0
-            exp = 0.0
             q_inc = Q(user_id=u.pk) & Q(category__cat_type='INC') & Q(is_active=True)
             q_exp = Q(user_id=u.pk) & Q(category__cat_type='EXP') & Q(is_active=True)
-            for operation in Operation.objects.filter(q_inc):
-                inc += operation.amount
-            for operation in Operation.objects.filter(q_exp):
-                exp += operation.amount
+            inc = Operation.objects.aggregate(inc=Sum('amount', filter=q_inc))
+            exp = Operation.objects.aggregate(exp=Sum('amount', filter=q_exp))
             res_data = {
                 "user": ApiUsersSerializer(u).data,
                 "balance": {
-                    'inc': inc,
-                    'exp': exp,
+                    **inc,
+                    **exp,
                 }
             }
         elif request.method == 'POST':
