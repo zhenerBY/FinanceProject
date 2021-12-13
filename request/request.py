@@ -159,7 +159,7 @@ def get_categories_balance(chat_id: int, cat_type: str) -> dict:
         'chat_id': chat_id,
         'cat_type': cat_type
     }
-    users_data = requests.post(HOST_API + 'operations/balance/', headers=headers, json=data)
+    users_data = requests.get(HOST_API + 'operations/cat_balance/', headers=headers, json=data)
     json_users_data = users_data.json()
     return json_users_data
 
