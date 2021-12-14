@@ -64,8 +64,6 @@ class UsersViewSet(viewsets.ModelViewSet):
 class OperationsViewSet(viewsets.ModelViewSet):
     queryset = Operation.objects.all()
     serializer_class = OperationsSerializer
-    # permission_classes = [HasAPIKey]
-    # permission_classes = [HasAPIKey | IsAdminUser]
     permission_classes = [HasAPIKey]
 
     # Времмено оставил, как функционал для авторизованных юзеров
@@ -183,13 +181,13 @@ class OperationsViewSet(viewsets.ModelViewSet):
 class CategoriesViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategoriesSerializer
-    permission_classes = [IsAdminUser]
+    permission_classes = [HasAPIKey]
 
 
 class ApiUsersViewSet(viewsets.ModelViewSet):
     queryset = ApiUser.objects.all()
     serializer_class = ApiUsersSerializer
-    permission_classes = [IsAdminUser]
+    permission_classes = [HasAPIKey]
 
     def get_queryset(self):
         queryset = super().get_queryset()

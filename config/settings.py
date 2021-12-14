@@ -150,8 +150,10 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework_simplejwt.authentication.JWTAuthentication',
         'rest_framework.authentication.TokenAuthentication',
-        'rest_framework_api_key.permissions.HasAPIKey',
-    )
+    ),
+    "DEFAULT_PERMISSION_CLASSES": [
+            "rest_framework_api_key.permissions.HasAPIKey",
+        ]
 }
 
 # sample JWT settings

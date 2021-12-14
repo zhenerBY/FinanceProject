@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from request1.request import *
+from request.request import *
 
 CHAT_ID = 11111111
 
