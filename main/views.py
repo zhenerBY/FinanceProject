@@ -1,6 +1,6 @@
 from django.db.models import Q, Sum
 from django.http import QueryDict
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, mixins
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny, IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
@@ -9,7 +9,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_api_key.permissions import HasAPIKey
 
 from main.models import Category, AdvUser, Operation, ApiUser
-from main.serializers import UsersSerializer, OperationsSerializer, CategoriesSerializer, ApiUsersSerializer
+from main.serializers import UsersSerializer, OperationsSerializer, CategoriesSerializer, ApiUsersSerializer, \
+    ExtendedOperationsSerializer
 
 
 class UsersViewSet(viewsets.ModelViewSet):
@@ -176,6 +177,29 @@ class OperationsViewSet(viewsets.ModelViewSet):
 #         serializer.save(user=ApiUser.objects.get(chat_id=self.request.data['chat_id']))
 #     except KeyError:
 #         serializer.save()
+
+
+class ExtendedOperationsViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    queryset = Operation.objects.all()
+    serializer_class = ExtendedOperationsSerializer
+    permission_classes = [HasAPIKey]
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        queryset = queryset.filter(is_active=True)
+        if self.request.method in ('GET'):
+            try:
+                queryset = queryset.filter(user__chat_id=self.request.data['chat_id'])
+            except KeyError:
+                queryset = queryset
+        return queryset
+
+    # отлавливаем и переопледеляем request.data, если есть в запросе 'chat_id'
+    def get_serializer(self, *args, **kwargs):
+        if self.request.data.get("chat_id") is not None:
+            user = ApiUser.objects.get(chat_id=self.request.data['chat_id']).pk
+            self.request.data['user'] = user
+        return super().get_serializer(*args, **kwargs)
 
 
 class CategoriesViewSet(viewsets.ModelViewSet):

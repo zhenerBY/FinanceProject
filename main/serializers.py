@@ -44,8 +44,26 @@ class CategoriesSerializer(serializers.ModelSerializer):
 
 
 class OperationsSerializer(serializers.ModelSerializer):
-    # user = UsersSerializer()
+    # user = ApiUsersSerializer()
     # category = CategoriesSerializer()
+
+    class Meta:
+        model = Operation
+        fields = [
+            'id',
+            'title',
+            'description',
+            'amount',
+            'user',
+            'category',
+            'created_at',
+            'is_active',
+        ]
+
+
+class ExtendedOperationsSerializer(serializers.ModelSerializer):
+    user = ApiUsersSerializer()
+    category = CategoriesSerializer()
 
     class Meta:
         model = Operation
