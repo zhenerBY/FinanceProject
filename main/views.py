@@ -179,7 +179,7 @@ class OperationsViewSet(viewsets.ModelViewSet):
 #         serializer.save()
 
 
-class ExtendedOperationsViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+class ExtendedOperationsViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet):
     queryset = Operation.objects.all()
     serializer_class = ExtendedOperationsSerializer
     permission_classes = [HasAPIKey]
