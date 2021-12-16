@@ -91,6 +91,10 @@ class OperationsViewSet(viewsets.ModelViewSet):
                 queryset = queryset.filter(user__chat_id=self.request.data['chat_id'])
             except KeyError:
                 queryset = queryset
+            try:
+                queryset = queryset.filter(category=self.request.data['category'])
+            except KeyError:
+                queryset = queryset
         return queryset
 
     # отлавливаем и переопледеляем request.data, если есть в запросе 'chat_id'
