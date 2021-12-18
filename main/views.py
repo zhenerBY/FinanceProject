@@ -211,6 +211,15 @@ class CategoriesViewSet(viewsets.ModelViewSet):
     serializer_class = CategoriesSerializer
     permission_classes = [HasAPIKey]
 
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        if self.request.method in ('GET'):
+            try:
+                queryset = queryset.filter(operations__user__chat_id=self.request.data['chat_id'])
+            except KeyError:
+                queryset = queryset
+        return queryset
+
 
 class ApiUsersViewSet(viewsets.ModelViewSet):
     queryset = ApiUser.objects.all()
