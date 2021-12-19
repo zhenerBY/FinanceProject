@@ -16,10 +16,23 @@ class AdvUser(AbstractUser):
 class ApiUser(models.Model):
     first_name = models.CharField(max_length=255,
                                   db_index=True,
-                                  unique=True,
                                   null=True,
                                   blank=True,
-                                  verbose_name=_('User name'))
+                                  verbose_name=_('First name'))
+    last_name = models.CharField(max_length=255,
+                                 db_index=True,
+                                 null=True,
+                                 blank=True,
+                                 verbose_name=_('Last name'),
+                                 default=None,
+                                 )
+    username = models.CharField(max_length=255,
+                                db_index=True,
+                                null=True,
+                                blank=True,
+                                verbose_name=_('User name'),
+                                default=None,
+                                )
     chat_id = models.PositiveBigIntegerField(unique=True)
     is_active = models.BooleanField(default=True,
                                     verbose_name=_('Is active?'))

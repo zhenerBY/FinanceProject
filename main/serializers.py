@@ -26,6 +26,8 @@ class ApiUsersSerializer(serializers.ModelSerializer):
             'id',
             'chat_id',
             'first_name',
+            'last_name',
+            'username',
             'is_active',
         ]
 
