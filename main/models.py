@@ -36,6 +36,10 @@ class ApiUser(models.Model):
     chat_id = models.PositiveBigIntegerField(unique=True)
     is_active = models.BooleanField(default=True,
                                     verbose_name=_('Is active?'))
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True, verbose_name=_('Created'),
+                                      )
+    updated_at = models.DateTimeField(auto_now=True, db_index=True, verbose_name=_('Updated'),
+                                      )
 
     def __str__(self):
         return f'ApiUser - {self.chat_id}'

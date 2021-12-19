@@ -11,7 +11,7 @@ class AdvUserAdmin(admin.ModelAdmin):
 
 
 class ApiUserAdmin(admin.ModelAdmin):
-    list_display = ('id', 'chat_id', 'first_name', 'last_name', 'username', 'is_active',)
+    list_display = ('id', 'chat_id', 'first_name', 'last_name', 'username', 'is_active', 'created_at', 'updated_at')
     list_display_links = ('chat_id',)
     search_fields = ('chat_id',)
     ordering = ('chat_id',)
