@@ -216,7 +216,9 @@ class CategoriesViewSet(viewsets.ModelViewSet):
         if self.request.method in ('GET'):
             try:
                 # queryset = queryset.filter(operations__user__chat_id=self.request.data['chat_id'])
-                queryset = queryset.filter(operations__user__chat_id=self.request.data['chat_id']).distinct()
+                q = Q(operations__user__chat_id=self.request.data['chat_id']) & Q(is_active=True)
+                queryset = queryset.filter(q).distinct()
+                # queryset = queryset.filter(operations__user__chat_id=self.request.data['chat_id']).distinct()
             except KeyError:
                 queryset = queryset
         return queryset
