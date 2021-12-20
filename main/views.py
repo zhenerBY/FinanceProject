@@ -217,7 +217,12 @@ class CategoriesViewSet(viewsets.ModelViewSet):
             try:
                 # queryset = queryset.filter(operations__user__chat_id=self.request.data['chat_id'])
                 q = Q(operations__user__chat_id=self.request.data['chat_id']) & Q(operations__is_active=True)
-                queryset = queryset.filter(q).distinct()
+                if self.request.data['unused']:
+                    print('UN True')
+                    queryset = queryset.exclude(q).distinct()
+                else:
+                    print('UN False')
+                    queryset = queryset.filter(q).distinct()
                 # queryset = queryset.filter(operations__user__chat_id=self.request.data['chat_id']).distinct()
             except KeyError:
                 queryset = queryset
