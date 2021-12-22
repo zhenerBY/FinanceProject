@@ -4,6 +4,7 @@ import time
 
 from django.db.models import Q, Sum
 from django.http import QueryDict
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, status, mixins
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny, IsAuthenticated, IsAdminUser
@@ -241,20 +242,31 @@ class CategoriesViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = super().get_queryset()
+        q = Q()
         if self.request.method in ('GET'):
-            try:
-                # queryset = queryset.filter(operations__user__chat_id=self.request.data['chat_id'])
-                q = Q(operations__user__chat_id=self.request.data['chat_id']) & Q(operations__is_active=True)
-                if self.request.data['unused']:
-                    print('UN True')
+            if 'cat_type' in self.request.data.keys():
+                q &= Q(cat_type=self.request.data['cat_type'])
+            if 'chat_id' in self.request.data.keys():
+                q &= Q(user__chat_id=self.request.data['chat_id'])
+            if 'unused' in self.request.data.keys():
+                if self.request.data['unused'] is True:
+                    queryset = queryset.filter(q).distinct()
+                    q = Q(operations__is_active=True)
+                    q &= Q(operations__user__chat_id=self.request.data['chat_id'])
                     queryset = queryset.exclude(q).distinct()
                 else:
-                    print('UN False')
+                    q &= Q(operations__is_active=True)
+                    q &= Q(operations__user__chat_id=self.request.data['chat_id'])
                     queryset = queryset.filter(q).distinct()
-                # queryset = queryset.filter(operations__user__chat_id=self.request.data['chat_id']).distinct()
-            except KeyError:
-                queryset = queryset
+            else:
+                queryset = queryset.filter(q).distinct()
         return queryset
+
+    def get_serializer(self, *args, **kwargs):
+        if self.request.data.get("chat_id") is not None:
+            user = ApiUser.objects.get(chat_id=self.request.data['chat_id']).pk
+            self.request.data['user'] = user
+        return super().get_serializer(*args, **kwargs)
 
 
 class ApiUsersViewSet(viewsets.ModelViewSet):

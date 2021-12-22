@@ -41,6 +41,7 @@ class CategoriesSerializer(serializers.ModelSerializer):
         fields = [
             'id',
             'name',
+            'user',
             'cat_type',
         ]
 
