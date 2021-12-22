@@ -18,10 +18,10 @@ class ApiUserAdmin(admin.ModelAdmin):
 
 
 class CategoriesAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'cat_type', 'created_at')
+    list_display = ('id', 'user', 'name', 'cat_type', 'created_at')
     list_display_links = ('name',)
-    search_fields = ('name',)
-    ordering = ('name',)
+    search_fields = ('name', 'user',)
+    ordering = ('user', 'name',)
 
 
 class OperationsAdmin(admin.ModelAdmin):
