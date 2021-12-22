@@ -237,23 +237,30 @@ class ExtendedOperationsViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin
 class CategoriesViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategoriesSerializer
-    permission_classes = [HasAPIKey]
+    # permission_classes = [HasAPIKey]
+    permission_classes = [AllowAny]
 
     def get_queryset(self):
         queryset = super().get_queryset()
+        q = Q(operations__is_active=True)
         if self.request.method in ('GET'):
-            try:
-                # queryset = queryset.filter(operations__user__chat_id=self.request.data['chat_id'])
-                q = Q(operations__user__chat_id=self.request.data['chat_id']) & Q(operations__is_active=True)
-                if self.request.data['unused']:
-                    print('UN True')
-                    queryset = queryset.exclude(q).distinct()
-                else:
-                    print('UN False')
-                    queryset = queryset.filter(q).distinct()
-                # queryset = queryset.filter(operations__user__chat_id=self.request.data['chat_id']).distinct()
-            except KeyError:
-                queryset = queryset
+            if 'chat_id' in self.request.data.keys():
+                q &= Q(user__chat_id=self.request.data['chat_id'])
+            if self.request.data['unused'] is True:
+                queryset = queryset.exclude(q).distinct()
+            else:
+                queryset = queryset.filter(q).distinct()
+            # try:
+            #     # q = Q(operations__user__chat_id=self.request.data['chat_id']) & Q(operations__is_active=True)
+            #     q = Q(user__chat_id=self.request.data['chat_id']) & Q(operations__is_active=True)
+            #     if self.request.data['unused']:
+            #         print('UN True')
+            #         queryset = queryset.exclude(q).distinct()
+            #     else:
+            #         print('UN False')
+            #         queryset = queryset.filter(q).distinct()
+            # except KeyError:
+            #     queryset = queryset
         return queryset
 
 

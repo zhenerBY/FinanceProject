@@ -83,7 +83,7 @@ class Operation(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, db_index=True, verbose_name=_('Created'))
     user = models.ForeignKey(ApiUser, on_delete=models.CASCADE,
                              verbose_name=_('User'), related_name='operations')
-    category = models.ForeignKey(Category, on_delete=models.PROTECT,
+    category = models.ForeignKey(Category, on_delete=models.CASCADE,
                                  verbose_name=_('Category'), related_name='operations')
     is_active = models.BooleanField(default=True,
                                     verbose_name=_('Is active?'))
