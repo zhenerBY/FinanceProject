@@ -1,3 +1,7 @@
+from concurrent.futures import ThreadPoolExecutor as PoolExecutor
+from concurrent.futures import as_completed
+import time
+
 from django.db.models import Q, Sum
 from django.http import QueryDict
 from rest_framework import viewsets, status, mixins
@@ -111,8 +115,32 @@ class OperationsViewSet(viewsets.ModelViewSet):
         u = ApiUser.objects.get(chat_id=chat_id)
         q_inc = Q(user_id=u.pk) & Q(category__cat_type='INC') & Q(is_active=True)
         q_exp = Q(user_id=u.pk) & Q(category__cat_type='EXP') & Q(is_active=True)
-        inc = Operation.objects.aggregate(inc=Sum('amount', filter=q_inc))
-        exp = Operation.objects.aggregate(exp=Sum('amount', filter=q_exp))
+        # start = time.time()
+        # not threading start
+        # inc = Operation.objects.aggregate(inc=Sum('amount', filter=q_inc))
+        # exp = Operation.objects.aggregate(exp=Sum('amount', filter=q_exp))
+        # not threading finish
+        # threading start
+        with PoolExecutor(max_workers=8) as executor:
+            arguments = [
+                {'inc': Sum('amount', filter=q_inc)},
+                {'exp': Sum('amount', filter=q_exp)},
+            ]
+            req_pool = {executor.submit(Operation.objects.aggregate, **params): params for params in arguments}
+            for req in as_completed(req_pool):
+                params = req_pool[req]
+                try:
+                    data = req.result()
+                except Exception as exc:
+                    print(f'{params} exception: {exc}')
+                else:
+                    if 'exp' in data.keys():
+                        exp = data
+                    elif 'inc' in data.keys():
+                        inc = data
+        # threading finish
+        # stop = time.time()
+        # print(stop - start)
         res_data = {
             "user": ApiUsersSerializer(u).data,
             "balance": {
