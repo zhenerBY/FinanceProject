@@ -92,14 +92,10 @@ class OperationsViewSet(viewsets.ModelViewSet):
         queryset = super().get_queryset()
         queryset = queryset.filter(is_active=True)
         if self.request.method in ('GET', 'DELETE', 'PUT', 'PATH'):
-            try:
+            if 'chat_id' in self.request.data.kyes():
                 queryset = queryset.filter(user__chat_id=self.request.data['chat_id'])
-            except KeyError:
-                queryset = queryset
-            try:
+            if 'category' in self.request.data.kyes():
                 queryset = queryset.filter(category=self.request.data['category'])
-            except KeyError:
-                queryset = queryset
         return queryset
 
     # отлавливаем и переопледеляем request.data, если есть в запросе 'chat_id'
