@@ -29,6 +29,9 @@ class ApiUsersSerializer(serializers.ModelSerializer):
             'last_name',
             'username',
             'is_active',
+            'date_filter_start',
+            'date_filter_end',
+            'pin_message_id',
         ]
 
 
