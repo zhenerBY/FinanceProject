@@ -1,3 +1,5 @@
+from datetime import date, datetime, timedelta
+
 from concurrent.futures import ThreadPoolExecutor as PoolExecutor
 from concurrent.futures import as_completed
 import time
@@ -92,10 +94,23 @@ class OperationsViewSet(viewsets.ModelViewSet):
         queryset = super().get_queryset()
         queryset = queryset.filter(is_active=True)
         if self.request.method in ('GET', 'DELETE', 'PUT', 'PATH'):
-            if 'chat_id' in self.request.data.kyes():
-                queryset = queryset.filter(user__chat_id=self.request.data['chat_id'])
-            if 'category' in self.request.data.kyes():
-                queryset = queryset.filter(category=self.request.data['category'])
+            if self.request.data != {}:
+                q = Q()
+                if 'chat_id' in self.request.data.keys():
+                    q &= Q(user__chat_id=self.request.data['chat_id'])
+                if 'cat_type' in self.request.data.keys():
+                    q &= Q(category__cat_type=self.request.data['cat_type'])
+                if 'category' in self.request.data.keys():
+                    q &= Q(category=self.request.data['category'])
+                if 'date_filter_start' in self.request.data.keys():
+                    date_filter_start = date.fromisoformat(self.request.data['date_filter_start'])
+                    q &= Q(created_at__date__gt=date_filter_start)
+                    if 'date_filter_end' in self.request.data.keys():
+                        date_filter_end = date.fromisoformat(self.request.data['date_filter_end'])
+                    else:
+                        date_filter_end = datetime.now().date()
+                    q &= Q(created_at__date__lt=date_filter_end)
+                queryset = queryset.filter(q)
         return queryset
 
     # отлавливаем и переопледеляем request.data, если есть в запросе 'chat_id'
@@ -105,13 +120,22 @@ class OperationsViewSet(viewsets.ModelViewSet):
             self.request.data['user'] = user
         return super().get_serializer(*args, **kwargs)
 
-    # shows the user's income and expenses (2 numbers)
+    # shows income and expenses (2 numbers)
     @action(methods=['GET'], detail=False, url_path="balance")
     def balance(self, request):
-        chat_id = request.data.get('chat_id')
-        u = ApiUser.objects.get(chat_id=chat_id)
-        q_inc = Q(user_id=u.pk) & Q(category__cat_type='INC') & Q(is_active=True)
-        q_exp = Q(user_id=u.pk) & Q(category__cat_type='EXP') & Q(is_active=True)
+        q = Q(is_active=True)
+        if 'chat_id' in self.request.data.keys():
+            q &= Q(user__chat_id=self.request.data['chat_id'])
+        if 'date_filter_start' in self.request.data.keys():
+            date_filter_start = date.fromisoformat(self.request.data['date_filter_start'])
+            q &= Q(created_at__date__gt=date_filter_start)
+            if 'date_filter_end' in self.request.data.keys():
+                date_filter_end = date.fromisoformat(self.request.data['date_filter_end'])
+            else:
+                date_filter_end = datetime.now().date()
+            q &= Q(created_at__date__lt=date_filter_end)
+        q_inc = q & Q(category__cat_type='INC')
+        q_exp = q & Q(category__cat_type='EXP')
         # start = time.time()
         # not threading start
         # inc = Operation.objects.aggregate(inc=Sum('amount', filter=q_inc))
@@ -139,7 +163,6 @@ class OperationsViewSet(viewsets.ModelViewSet):
         # stop = time.time()
         # print(stop - start)
         res_data = {
-            "user": ApiUsersSerializer(u).data,
             "balance": {
                 **inc,
                 **exp,
@@ -150,10 +173,18 @@ class OperationsViewSet(viewsets.ModelViewSet):
     # show user's category balance
     @action(methods=['GET'], detail=False, url_path="cat_balance")
     def cat_balance(self, request):
-        chat_id = request.data.get('chat_id')
-        u = ApiUser.objects.get(chat_id=chat_id)
         cat_type = request.data.get('cat_type')
-        q = Q(user_id=u.pk) & Q(category__cat_type=cat_type) & Q(is_active=True)
+        q = Q(is_active=True) & Q(category__cat_type=cat_type)
+        if 'chat_id' in self.request.data.keys():
+            q &= Q(user__chat_id=self.request.data['chat_id'])
+        if 'date_filter_start' in self.request.data.keys():
+            date_filter_start = date.fromisoformat(self.request.data['date_filter_start'])
+            q &= Q(created_at__date__gt=date_filter_start)
+            if 'date_filter_end' in self.request.data.keys():
+                date_filter_end = date.fromisoformat(self.request.data['date_filter_end'])
+            else:
+                date_filter_end = datetime.now().date()
+            q &= Q(created_at__date__lt=date_filter_end)
         categories = {}
         for operation in Operation.objects.filter(q):
             if operation.category.name in categories.keys():
@@ -161,7 +192,6 @@ class OperationsViewSet(viewsets.ModelViewSet):
             else:
                 categories[operation.category.name] = operation.amount
         res_data = {
-            "user": ApiUsersSerializer(u).data,
             "categories": categories
         }
         return Response(res_data, status=status.HTTP_200_OK)
@@ -216,7 +246,7 @@ class ExtendedOperationsViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin
     def get_queryset(self):
         queryset = super().get_queryset()
         queryset = queryset.filter(is_active=True)
-        if self.request.method in ('GET'):
+        if self.request.method in ('GET',):
             try:
                 queryset = queryset.filter(user__chat_id=self.request.data['chat_id'])
             except KeyError:
@@ -239,7 +269,7 @@ class CategoriesViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = super().get_queryset()
         q = Q()
-        if self.request.method in ('GET'):
+        if self.request.method in ('GET',):
             if 'cat_type' in self.request.data.keys():
                 q &= Q(cat_type=self.request.data['cat_type'])
             if 'chat_id' in self.request.data.keys():

@@ -36,10 +36,11 @@ class ApiUser(models.Model):
     chat_id = models.PositiveBigIntegerField(unique=True)
     is_active = models.BooleanField(default=True,
                                     verbose_name=_('Is active?'))
-    created_at = models.DateTimeField(auto_now_add=True, db_index=True, verbose_name=_('Created'),
-                                      )
-    updated_at = models.DateTimeField(auto_now=True, db_index=True, verbose_name=_('Updated'),
-                                      )
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True, verbose_name=_('Created'))
+    updated_at = models.DateTimeField(auto_now=True, db_index=True, verbose_name=_('Updated'))
+    date_filter_start = models.DateField(null=True, blank=True, default=None, verbose_name=_('Date filter start'))
+    date_filter_end = models.DateField(null=True, blank=True, default=None, verbose_name=_('Date filter end'))
+    pin_message_id = models.IntegerField(null=True, blank=True, default=None, verbose_name=_('Pinned message id'))
 
     def __str__(self):
         return f'ApiUser - {self.chat_id}'
