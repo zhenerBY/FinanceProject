@@ -4,8 +4,6 @@ from main.models import AdvUser, Category, Operation, ApiUser
 
 
 class UsersSerializer(serializers.ModelSerializer):
-    # class UsersSerializer(serializers.HyperlinkedModelSerializer):
-    # operations = OperationsSerializer(many=True)
 
     class Meta:
         model = AdvUser
@@ -36,9 +34,6 @@ class ApiUsersSerializer(serializers.ModelSerializer):
 
 
 class CategoriesSerializer(serializers.ModelSerializer):
-    # class UsersSerializer(serializers.HyperlinkedModelSerializer):
-    # operations = OperationsSerializer(many=True)
-
     class Meta:
         model = Category
         fields = [
@@ -50,9 +45,6 @@ class CategoriesSerializer(serializers.ModelSerializer):
 
 
 class OperationsSerializer(serializers.ModelSerializer):
-    # user = ApiUsersSerializer()
-    # category = CategoriesSerializer()
-
     class Meta:
         model = Operation
         fields = [
