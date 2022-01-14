@@ -29,4 +29,4 @@
 - create API key into admin panel;
 - remember the token
 ## Set up telegram bot
-[FinanceProjectApi](https://github.com/zhenerBY/FinanceProjectApi)
+- go to [FinanceProjectApi](https://github.com/zhenerBY/FinanceProjectApi)
