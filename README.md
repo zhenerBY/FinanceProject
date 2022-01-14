@@ -24,3 +24,9 @@
 > python manage.py createsuperuser
 ### run 
 > python manage.py runserver 
+### create api token 
+- go to admin page (host/admin/);
+- create API key into admin panel;
+- remember the token
+### set up telegram bot
+[FinanceProjectApi](https://github.com/zhenerBY/FinanceProjectApi)
