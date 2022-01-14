@@ -30,3 +30,5 @@
 - remember the token
 ## Set up telegram bot
 - go to [FinanceProjectBot](https://github.com/zhenerBY/FinanceProjectBot)
+## Build project with Docker-Compose
+- go to [FinanceProjectDocker](https://github.com/zhenerBY/FinanceProjectDocker)
